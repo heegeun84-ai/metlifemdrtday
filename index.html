@@ -48,6 +48,8 @@ nav.tabs button.on{color:var(--blue);border-color:var(--blue)}
 nav.tabs button .b{display:inline-block;min-width:17px;font-size:11px;background:var(--line);color:var(--muted);
   border-radius:9px;padding:1px 6px;margin-left:4px;font-weight:700}
 nav.tabs button.on .b{background:var(--blue);color:#fff}
+nav.tabs button.tabadmin{color:var(--gold);font-weight:700;margin-left:auto}
+nav.tabs button.tabadmin.on{color:var(--gold);border-color:var(--gold)}
 main{padding-top:22px}
 .panel{display:none;animation:fade .25s ease}.panel.on{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
@@ -776,7 +778,8 @@ function renderBudget(){
 }
 $("#budUnlock").onclick=()=>{const pw=prompt("관리자 비밀번호를 입력하세요");if(pw===null)return;
   if(pw===ADMIN_PW){budUnlocked=true;budView();}else alert("비밀번호가 올바르지 않습니다.");};
-$("#budLock").onclick=()=>{budUnlocked=false;budAdmin=false;$("#budAdmin").textContent="✏️ 금액·내용 편집";$("#budAdmin").classList.remove("on");$("#budRestore").style.display="none";budView();};
+$("#budLock").onclick=()=>{budUnlocked=false;budAdmin=false;$("#budAdmin").textContent="✏️ 금액·내용 편집";$("#budAdmin").classList.remove("on");$("#budRestore").style.display="none";
+  const bt=document.querySelector('[data-t="budget"]');if(bt)bt.style.display="none";goTab("overview");};
 $("#budRestore").onclick=()=>{if(confirm("예산 수정·추가·삭제·지출완료·재원 구분을 모두 원본으로 되돌릴까요?")){localStorage.removeItem(BKEY);localStorage.removeItem(BS);localStorage.removeItem(BFUND);renderBudget();}};
 $("#budAdmin").onclick=()=>{
   budAdmin=!budAdmin;
@@ -797,7 +800,16 @@ function goTab(id){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 const tb=$("#tabbar");
-TABS.forEach(([id,label,cnt])=>{const b=ce("button");b.dataset.t=id;b.innerHTML=label+(cnt?` <span class="b">${cnt()}</span>`:"");if(id==="overview")b.classList.add("on");b.onclick=()=>goTab(id);tb.appendChild(b);});
+TABS.forEach(([id,label,cnt])=>{const b=ce("button");b.dataset.t=id;b.innerHTML=label+(cnt?` <span class="b">${cnt()}</span>`:"");if(id==="overview")b.classList.add("on");if(id==="budget")b.style.display="none";b.onclick=()=>goTab(id);tb.appendChild(b);});
+// 예산은 관리자 전용 — 평소 숨김, 자물쇠 버튼으로 비번 입력 시 노출
+const admBtn=ce("button");admBtn.className="tabadmin";admBtn.textContent="🔒 예산";
+admBtn.onclick=()=>{
+  if(budUnlocked){goTab("budget");return;}
+  const pw=prompt("관리자 비밀번호를 입력하세요");if(pw===null)return;
+  if(pw===ADMIN_PW){budUnlocked=true;const bt=document.querySelector('[data-t="budget"]');if(bt)bt.style.display="";goTab("budget");}
+  else alert("비밀번호가 올바르지 않습니다.");
+};
+tb.appendChild(admBtn);
 
 function updateViewSeg(){document.querySelectorAll("#clView button").forEach(b=>b.classList.toggle("on",b.dataset.v===clMode));}
 document.querySelectorAll("#clView button").forEach(b=>b.onclick=()=>{clMode=b.dataset.v;updateViewSeg();curGroup="전체";renderChips();renderChecklist();});
