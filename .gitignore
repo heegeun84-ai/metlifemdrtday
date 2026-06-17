@@ -1,0 +1,4 @@
+assets/work/
+.DS_Store
+.vercel
+__pycache__/
