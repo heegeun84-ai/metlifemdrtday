@@ -129,6 +129,9 @@ h2.sec:first-child{margin-top:4px}
 .itrm:hover{color:var(--red)}
 .itadd{padding:10px 15px;font-size:12.5px;font-weight:700;color:var(--blue);cursor:pointer;border-top:1px dashed var(--line)}
 .itadd:hover{background:#f3faf5}
+.imv{display:inline-flex;flex-direction:column;flex:none;align-self:center}
+.imv button{background:none;border:1px solid var(--line);border-radius:4px;cursor:pointer;color:var(--muted);font-size:9px;line-height:1;padding:2px 4px;margin:1px 0}
+.imv button:hover{color:var(--blue);border-color:var(--blue)}
 /* depts */
 .dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
 .dcard{padding:16px}
@@ -484,6 +487,10 @@ function renderChips(){
   });
 }
 function clRerender(){renderChecklist();renderChips();renderOverview();renderDepts();}
+function moveChk(id,dir){const c=clData();const it=c.find(x=>x.id===id);if(!it)return;
+  const g=keyOf(it,clMode);const idxs=c.map((x,i)=>keyOf(x,clMode)===g?i:-1).filter(i=>i>=0);
+  const cur=idxs.indexOf(c.indexOf(it));const tp=cur+dir;if(tp<0||tp>=idxs.length)return;
+  const a=idxs[cur],b=idxs[tp];const t=c[a];c[a]=c[b];c[b]=t;clSave(c);clRerender();}
 function renderChecklist(){
   const body=$("#clBody");body.className=clAdmin?"editing-cl":"";body.innerHTML="";
   const C=clData(), D=clDoneMap();
@@ -513,7 +520,7 @@ function renderChecklist(){
       it.innerHTML=`<div class="cb${on?' ck':''}" data-id="${c.id}"></div>
         <div class="body"><div class="nm">${nm}</div>${ctLine}${ownerLine}
         ${(!clAdmin&&c.check)?`<div class="ct">☑ ${c.check}</div>`:''}<div class="tags">${tags.join('')}</div></div>
-        ${clAdmin?`<button class="itrm" data-id="${c.id}" title="행 삭제">✕</button>`:''}`;
+        ${clAdmin?`<span class="imv"><button class="ciup" data-id="${c.id}">▲</button><button class="cidn" data-id="${c.id}">▼</button></span><button class="itrm" data-id="${c.id}" title="행 삭제">✕</button>`:''}`;
       list.appendChild(it);
     });
     if(clAdmin){const add=ce("div","itadd");add.textContent="＋ 항목 추가";add.dataset.g=g;list.appendChild(add);}
@@ -525,6 +532,8 @@ function renderChecklist(){
     body.querySelectorAll(".cef").forEach(e=>e.addEventListener("blur",()=>{
       const c=clData(),it=clFind(c,e.dataset.id);if(!it)return;it[e.dataset.f]=e.innerText.trim();clSave(c);renderOverview();renderDepts();renderChips();}));
     body.querySelectorAll(".itrm").forEach(b=>b.onclick=()=>{const c=clData().filter(x=>x.id!==b.dataset.id);clSave(c);clRerender();});
+    body.querySelectorAll(".ciup").forEach(b=>b.onclick=()=>moveChk(b.dataset.id,-1));
+    body.querySelectorAll(".cidn").forEach(b=>b.onclick=()=>moveChk(b.dataset.id,1));
     body.querySelectorAll(".itadd").forEach(b=>b.onclick=()=>{
       const c=clData(),g=b.dataset.g,ni={id:cluid(),item:"새 항목",content:"",owner:"",coop:"",extra:"",sit:"",check:""};
       if(clMode==="dept"){ni.deptN=g;ni.area="기타";}else{ni.area=g;const f=c.find(x=>x.area===g);ni.deptN=f?f.deptN:"";}
@@ -770,7 +779,7 @@ function renderBudget(){
       const sp=!!S[it.id], a=parseWon(it.a);
       const sEdit=budAdmin?`<span class="bef" data-id="${it.id}" data-f="s" contenteditable="true">${it.s||''}</span>`:(it.s||'');
       const aEdit=budAdmin?`<span class="bef amt" data-id="${it.id}" data-f="a" contenteditable="true">${a||''}</span>원`:(a?won(a):'<span class="muted">—</span>');
-      const del=budAdmin?`<button class="birm" data-id="${it.id}" title="행 삭제">✕</button>`:'';
+      const del=budAdmin?`<span class="imv"><button class="biup" data-id="${it.id}">▲</button><button class="bidn" data-id="${it.id}">▼</button></span><button class="birm" data-id="${it.id}" title="행 삭제">✕</button>`:'';
       const chip=`<button class="bdone ${sp?'yes':'no'}" data-id="${it.id}">${sp?'✓ 집행완료':'미집행'}</button>`;
       const f=fundOf(it);
       const fundChip=`<button class="bfund ${f==='본사'?'hq':'fee'}" data-id="${it.id}">${f==='본사'?'본사지급':'회비지급'}</button>`;
@@ -792,8 +801,12 @@ function renderBudget(){
       const b=bData();b.cats.forEach(c=>c.items=c.items.filter(it=>it.id!==btn.dataset.id));bSave(b);renderBudget();});
     box.querySelectorAll(".biadd").forEach(btn=>btn.onclick=()=>{
       const b=bData();b.cats[+btn.dataset.ci].items.push({id:uid(),s:"새 항목",a:0,c:"",d:""});bSave(b);renderBudget();});
+    box.querySelectorAll(".biup").forEach(b=>b.onclick=()=>moveBud(b.dataset.id,-1));
+    box.querySelectorAll(".bidn").forEach(b=>b.onclick=()=>moveBud(b.dataset.id,1));
   }
 }
+function moveBud(id,dir){const b=bData();for(const c of b.cats){const i=c.items.findIndex(x=>x.id===id);
+  if(i>=0){const j=i+dir;if(j>=0&&j<c.items.length){const t=c.items[i];c.items[i]=c.items[j];c.items[j]=t;bSave(b);renderBudget();}return;}}}
 $("#budUnlock").onclick=()=>{const pw=prompt("관리자 비밀번호를 입력하세요");if(pw===null)return;
   if(pw===ADMIN_PW){budUnlocked=true;budView();}else alert("비밀번호가 올바르지 않습니다.");};
 $("#budLock").onclick=()=>{budUnlocked=false;budAdmin=false;$("#budAdmin").textContent="✏️ 금액·내용 편집";$("#budAdmin").classList.remove("on");$("#budRestore").style.display="none";
