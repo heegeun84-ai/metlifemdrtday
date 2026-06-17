@@ -390,7 +390,6 @@ h2.sec:first-child{margin-top:4px}
     <div class="ttbar">
       <div class="muted" style="font-size:13px;font-weight:600">2026 예상 예산 · 지출 완료 항목 체크</div>
       <button class="adminbtn" id="budAdmin" style="margin-left:auto">✏️ 금액·내용 편집</button>
-      <button class="reset" id="budRestore" style="display:none">원본 복원</button>
       <button class="reset" id="budLock">🔒 잠금</button>
     </div>
     <div class="kpis">
@@ -809,14 +808,12 @@ function moveBud(id,dir){const b=bData();for(const c of b.cats){const i=c.items.
   if(i>=0){const j=i+dir;if(j>=0&&j<c.items.length){const t=c.items[i];c.items[i]=c.items[j];c.items[j]=t;bSave(b);renderBudget();}return;}}}
 $("#budUnlock").onclick=()=>{const pw=prompt("관리자 비밀번호를 입력하세요");if(pw===null)return;
   if(pw===ADMIN_PW){budUnlocked=true;budView();}else alert("비밀번호가 올바르지 않습니다.");};
-$("#budLock").onclick=()=>{budUnlocked=false;budAdmin=false;$("#budAdmin").textContent="✏️ 금액·내용 편집";$("#budAdmin").classList.remove("on");$("#budRestore").style.display="none";
+$("#budLock").onclick=()=>{budUnlocked=false;budAdmin=false;$("#budAdmin").textContent="✏️ 금액·내용 편집";$("#budAdmin").classList.remove("on");
   const bt=document.querySelector('[data-t="budget"]');if(bt)bt.style.display="none";goTab("overview");};
-$("#budRestore").onclick=()=>{if(confirm("예산 수정·추가·삭제·지출완료·재원 구분을 모두 원본으로 되돌릴까요?")){localStorage.removeItem(BKEY);localStorage.removeItem(BS);localStorage.removeItem(BFUND);renderBudget();}};
 $("#budAdmin").onclick=()=>{
   budAdmin=!budAdmin;
   $("#budAdmin").textContent=budAdmin?"✏️ 편집 중 (끄기)":"✏️ 금액·내용 편집";
   $("#budAdmin").classList.toggle("on",budAdmin);
-  $("#budRestore").style.display=budAdmin?"":"none";
   renderBudget();
 };
 
