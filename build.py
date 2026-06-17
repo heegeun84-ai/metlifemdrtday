@@ -660,7 +660,8 @@ function renderSeatTool(){
   }
   const q=($("#poolSearch").value||"").trim().toLowerCase();
   const pool=DATA.roster.filter(p=>!a[p.id]);
-  const NONMEM=["강사","본사","일본·RGA","협회","컴플라이언스","운영진"];
+  const NONMEM=["강사","본사","본부장","컴퍼니체어","운영진","협회","일본·RGA"];
+  const TYPECOL={"강사":"#7B5EA7","본사":"#0061A0","본부장":"#c98a2a","컴퍼니체어":"#b5527e","운영진":"#1f8a8a","협회":"#5a8f3a","일본·RGA":"#c0563a"};
   const gkey=p=>(p.type&&p.type!=="회원")?p.type:p.branch;
   const groups={};pool.forEach(p=>{const k=gkey(p);(groups[k]=groups[k]||[]).push(p)});
   const keys=[...NONMEM.filter(k=>groups[k]), ...Object.keys(groups).filter(k=>!NONMEM.includes(k)).sort((x,y)=>x.localeCompare(y,'ko'))];
@@ -668,10 +669,11 @@ function renderSeatTool(){
   keys.forEach(br=>{
     let ppl=groups[br]; if(q)ppl=ppl.filter(p=>(p.name+p.branch+(p.type||'')+(p.bonbu||'')).toLowerCase().includes(q));
     if(!ppl.length)return;
-    const isNM=NONMEM.includes(br);
-    const g=ce("div");g.innerHTML=`<div class="pgh"${isNM?' style="color:var(--blue)"':''}><span>${isNM?'◆ '+br:br}</span><span>${ppl.length}</span></div>`;const wrap=ce("div");
+    const isNM=NONMEM.includes(br), col=TYPECOL[br];
+    const g=ce("div");g.innerHTML=`<div class="pgh"${col?` style="color:${col}"`:''}><span>${isNM?'◆ '+br:br}</span><span>${ppl.length}</span></div>`;const wrap=ce("div");
     ppl.forEach(p=>{
       const c=ce("span","pchip"+(seatSel===p.id?" sel":""));c.textContent=p.name;c.draggable=true;c.dataset.pid=p.id;
+      if(col&&seatSel!==p.id){c.style.borderColor=col;c.style.color=col;c.style.background="#fff";}
       c.onclick=()=>{seatSel=(seatSel===p.id?null:p.id);renderSeatTool();};
       c.addEventListener("dragstart",e=>e.dataTransfer.setData("pid",p.id));
       wrap.appendChild(c);
@@ -818,7 +820,7 @@ function goTab(id){
 const tb=$("#tabbar");
 TABS.forEach(([id,label,cnt])=>{const b=ce("button");b.dataset.t=id;b.innerHTML=label+(cnt?` <span class="b">${cnt()}</span>`:"");if(id==="overview")b.classList.add("on");if(id==="budget")b.style.display="none";b.onclick=()=>goTab(id);tb.appendChild(b);});
 // 예산은 관리자 전용 — 평소 숨김, 자물쇠 버튼으로 비번 입력 시 노출
-const admBtn=ce("button");admBtn.className="tabadmin";admBtn.textContent="🔒 예산";
+const admBtn=ce("button");admBtn.className="tabadmin";admBtn.textContent="🔒 관리자";
 admBtn.onclick=()=>{
   if(budUnlocked){goTab("budget");return;}
   const pw=prompt("관리자 비밀번호를 입력하세요");if(pw===null)return;

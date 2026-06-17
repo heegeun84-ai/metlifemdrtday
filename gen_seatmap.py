@@ -32,17 +32,18 @@ for ri in range(6):
     for x in cols:
         pos[num]=(x,ys[ri]); num+=1
 
-# --- 무대(중앙) + 양쪽 스크린 ---
-sy1,sy2=int(.045*H),int(.140*H)
-sx1,sx2=int(.41*W),int(.59*W)
+# --- 무대(중앙, 실제 14.4m 비율로 넓게) + 양쪽 스크린(떨어져서 크게) ---
+sy1,sy2=int(.04*H),int(.145*H)
+sx1,sx2=int(.345*W),int(.655*W)
 cv2.rectangle(cv,(sx1,sy1),(sx2,sy2),(232,232,232),-1)
 cv2.rectangle(cv,(sx1,sy1),(sx2,sy2),(135,135,135),2)
-ctext("STAGE",.5*W,(sy1+sy2)/2,1.05,(110,110,110),2)
-cv2.rectangle(cv,(int(.485*W),sy2),(int(.515*W),int(.18*H)),(70,70,205),-1)  # 레드카펫
-for x1,x2 in [(.06*W,.155*W),(.845*W,.94*W)]:
-    cv2.rectangle(cv,(int(x1),sy1),(int(x2),sy2),(244,234,214),-1)
-    cv2.rectangle(cv,(int(x1),sy1),(int(x2),sy2),(170,130,70),2)
-    ctext("SCREEN",(x1+x2)/2,(sy1+sy2)/2,0.6,(150,110,50),2)
+ctext("STAGE",.5*W,(sy1+sy2)/2,1.15,(110,110,110),2)
+cv2.rectangle(cv,(int(.483*W),sy2),(int(.517*W),int(.185*H)),(70,70,205),-1)  # 레드카펫
+syc1,syc2=int(.05*H),int(.175*H)
+for x1,x2 in [(.03*W,.20*W),(.80*W,.97*W)]:
+    cv2.rectangle(cv,(int(x1),syc1),(int(x2),syc2),(244,234,214),-1)
+    cv2.rectangle(cv,(int(x1),syc1),(int(x2),syc2),(170,130,70),2)
+    ctext("SCREEN",(x1+x2)/2,(syc1+syc2)/2,0.72,(150,110,50),2)
 
 # --- 테이블 원 (균일 반지름) ---
 R=42
