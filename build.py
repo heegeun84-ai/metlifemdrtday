@@ -629,7 +629,7 @@ const SEATKEY="mdrt2026_seats", CAP=10, NTABLE=70;
 const BLOCK=new Set(DATA.seating_ref.block||[]);
 let seatSel=null, tableView=null;
 const ROSTER_BYID={}; DATA.roster.forEach(p=>ROSTER_BYID[p.id]=p);
-function seatGet(){return lsGet(SEATKEY,{})}
+function seatGet(){const s=lsGet(SEATKEY,null);return s||Object.assign({},DATA.seat_default||{});}
 function tcount(a,n){return Object.values(a).filter(t=>t==n).length}
 function assignSeat(pid,n){
   if(BLOCK.has(n)){alert(`테이블 ${n}은 스텝용으로 블락되어 있습니다.`);return;}
