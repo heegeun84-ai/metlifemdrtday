@@ -631,7 +631,9 @@ function renderSeatTool(){
   const asgN=Object.keys(a).filter(p=>ROSTER_BYID[p]).length, used=new Set(Object.values(a)).size, tot=DATA.roster.length;
   $("#seatSum").innerHTML=`<div class="ss">배치 <b>${asgN}</b>/${tot}명</div><div class="ss">미배치 <b>${tot-asgN}</b></div>
     <div class="ss">사용 테이블 <b>${used}</b>/${NTABLE}</div>
+    <button class="reset" id="seatReset">확정배치 복원</button>
     ${seatSel?`<div class="ss" style="color:var(--gold);border-color:var(--gold)">✋ ${ROSTER_BYID[seatSel].name} — 테이블 탭</div>`:''}`;
+  $("#seatReset").onclick=()=>{if(confirm("좌석 배정을 확정 배치로 되돌릴까요? (직접 변경한 내용은 삭제됩니다)")){localStorage.removeItem(SEATKEY);renderSeatTool();}};
   // 테이블 카드 (넘버링 순 1~71)
   const tb=$("#tableBox");tb.innerHTML="";
   for(let n=1;n<=DATA.tables.length;n++){
